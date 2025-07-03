@@ -18,25 +18,27 @@ app.get("/", (req, res) => {
 
 app.post("/", (req, res) => {
   const firstName = req.body.FNAME;
+  const email = req.body.email;
   const lastName = req.body.LNAME;
-  const birthday = req.body.birthday;
+  var birthNum = req.body.birthday;
+  const birthday = birthNum.toString();
+
+  console.log(typeof birthday);
 
   var data = {
     members: [
       {
         email_address: email,
-
         status: "subscribed",
         merge_fields: {
           FNAME: firstName,
           LNAME: lastName,
-          options: {
-            date_format: birthday,
-          },
+          BIRTHDAY: birthday,
         },
       },
     ],
   };
+  console.log(data);
 
   const jsonData = JSON.stringify(data);
 
@@ -44,7 +46,7 @@ app.post("/", (req, res) => {
 
   const options = {
     method: "POST",
-    auth: "Izuchukwu:1e45e07f230b4e6abd5d3c80bfa8bb0f-us11",
+    auth: "Izuchukwu:44eee036d95eb15c96cfe4e214462534-us11",
   };
 
   const request = http.request(url, options, function (response) {
@@ -59,6 +61,6 @@ app.post("/", (req, res) => {
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
-//My API Key = 1e45e07f230b4e6abd5d3c80bfa8bb0f-us11
+//My API Key = 44eee036d95eb15c96cfe4e214462534-us11
 
 //  My List ID = cd086977f1
