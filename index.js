@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import path from "path";
-import http from "https";
+import https from "https";
 import { fileURLToPath } from "url";
 import { log } from "console";
 
@@ -12,18 +12,20 @@ const port = 3000;
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Routes
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/", (req, res) => {
+  console.log("Received:", req.body);
   const firstName = req.body.FNAME;
   const email = req.body.email;
   const lastName = req.body.LNAME;
-  var birthNum = req.body.birthday;
-  const birthday = birthNum.toString();
+  const { birthday_month, birthday_day } = req.body;
+  const birthday = `${birthday_month}/${birthday_day}`;
 
-  console.log(typeof birthday);
+  console.log(birthday);
 
   var data = {
     members: [
@@ -37,6 +39,7 @@ app.post("/", (req, res) => {
         },
       },
     ],
+    update_existing: true,
   };
   console.log(data);
 
@@ -46,12 +49,41 @@ app.post("/", (req, res) => {
 
   const options = {
     method: "POST",
-    auth: "Izuchukwu:44eee036d95eb15c96cfe4e214462534-us11",
+    auth: "Izuchukwu:136f70dea1e8661a33ee39bdc492f1f1-us11",
   };
 
-  const request = http.request(url, options, function (response) {
+  const request = https.request(url, options, function (response) {
+    if (response.statusCode === 200) {
+      res.sendFile(__dirname + "/success.html");
+    } else {
+      res.sendFile(__dirname + "/failure.html");
+    }
+
     response.on("data", function (data) {
       console.log(JSON.parse(data));
+    });
+
+    let responseData = "";
+
+    response.on("data", (chunk) => {
+      responseData += chunk;
+    });
+
+    request.on("end", async () => {
+      const result = JSON.parse(responseData);
+
+      if (response.statusCode === 200) {
+        res.json({
+          success: true,
+          isUpdate: result.total_updated > 0,
+          email: email,
+        });
+      } else {
+        res.json({
+          success: false,
+          error: result.detail || "Operation failed",
+        });
+      }
     });
   });
 
@@ -59,8 +91,12 @@ app.post("/", (req, res) => {
   request.end();
 });
 
+app.post("/failure", (req, res) => {
+  res.redirect("/");
+});
+
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
-//My API Key = 44eee036d95eb15c96cfe4e214462534-us11
+//My API Key = 136f70dea1e8661a33ee39bdc492f1f1-us11
 
 //  My List ID = cd086977f1
