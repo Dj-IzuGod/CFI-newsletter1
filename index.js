@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import https from "https";
 import { fileURLToPath } from "url";
+import "dotenv/config";
 import { log } from "console";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,11 @@ app.post("/", (req, res) => {
 
   console.log(birthday);
 
+  const apiKey = process.env.MAILCHIMP_API_KEY;
+  const listId = process.env.MAILCHIMP_LIST_ID;
+
+  console.log(apiKey);
+
   var data = {
     members: [
       {
@@ -45,11 +51,11 @@ app.post("/", (req, res) => {
 
   const jsonData = JSON.stringify(data);
 
-  const url = "https://us11.api.mailchimp.com/3.0/lists/cd086977f1";
+  const url = `https://us11.api.mailchimp.com/3.0/lists/${listId}`;
 
   const options = {
     method: "POST",
-    auth: "Izuchukwu:136f70dea1e8661a33ee39bdc492f1f1-us11",
+    auth: `Izuchukwu:${apiKey}`,
   };
 
   const request = https.request(url, options, function (response) {
@@ -97,6 +103,6 @@ app.post("/failure", (req, res) => {
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
-//My API Key = 136f70dea1e8661a33ee39bdc492f1f1-us11
+//My API Key = b318de799e10eedaf78c2e270904cead-us11
 
 //  My List ID = cd086977f1
